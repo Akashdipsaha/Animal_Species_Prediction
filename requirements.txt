@@ -1,9 +1,4 @@
-streamlit
-opencv-python-headless
-torch
-torchvision
-torchaudio
-streamlit-webrtc
-matplotlib
-Pillow
 numpy
+pillow
+streamlit
+tensorflow
