@@ -1,30 +1,14 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
+import streamlit as st
 import numpy as np
 from PIL import Image
-import requests
-from io import BytesIO
-import matplotlib.pyplot as plt
 from tensorflow.keras.applications.resnet50 import ResNet50, preprocess_input, decode_predictions
 
-
-# In[2]:
-
-
+# Load the ResNet50 model with pretrained ImageNet weights
 model = ResNet50(weights='imagenet')
 
-
-# In[3]:
-
-
-def predict_animal_species(image_path):
-    # Load and preprocess the image
-    img = Image.open(image_path)
-    img = img.resize((224, 224))
+# Function to predict animal species
+def predict_animal_species(image):
+    img = image.resize((224, 224))
     img_array = np.array(img)
     img_array = np.expand_dims(img_array, axis=0)
     processed_img = preprocess_input(img_array)
@@ -33,25 +17,30 @@ def predict_animal_species(image_path):
     predictions = model.predict(processed_img)
     decoded_predictions = decode_predictions(predictions, top=3)[0]
 
-    # Display the predictions
-    for _, animal, probability in decoded_predictions:
-        print(f"{animal}: {probability:.2%}")
+    # Return the predictions
+    return decoded_predictions
+
+# Streamlit app interface
+def main():
+    st.title("Animal Species Prediction using ResNet50")
     
-    # Display the image
-    plt.imshow(img)
-    plt.axis('off')
-    plt.show()
+    # Upload an image
+    uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+    
+    if uploaded_file is not None:
+        # Load and display the image
+        image = Image.open(uploaded_file)
+        st.image(image, caption='Uploaded Image', use_column_width=True)
+        st.write("")
+        st.write("Classifying...")
 
+        # Predict the animal species
+        predictions = predict_animal_species(image)
 
-# In[6]:
+        # Display the predictions
+        for _, animal, probability in predictions:
+            st.write(f"{animal}: {probability:.2%}")
 
-
-image_path = r'C:\Users\KIIT\Downloads\ray-hennessy-xUUZcpQlqpM-unsplash.jpg'
-predict_animal_species(image_path)
-
-
-# In[ ]:
-
-
-
-
+# Run the Streamlit app
+if __name__ == '__main__':
+    main()
